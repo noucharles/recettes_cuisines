@@ -8,9 +8,7 @@ class CategoriesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // GridView fonctione comme Listview mais pas juste des elts cote à cote
     // mais plutot comme une grille d'elts
-    return Scaffold(
-      appBar: AppBar(title: const Text("Recettes de cuisine"),),
-      body: GridView(
+    return GridView(
         padding: const EdgeInsets.all(25),
         children: DUMMY_CATEGORIES
             .map((catData) =>
@@ -22,7 +20,6 @@ class CategoriesScreen extends StatelessWidget {
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
         ),
-      ),
     );
   }
 }
