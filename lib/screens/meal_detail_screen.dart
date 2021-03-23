@@ -5,6 +5,11 @@ import 'package:meal_app/dummy_data.dart';
 class MealDetailScreen extends StatelessWidget {
   static const routeName = '/meal-detail';
 
+  final Function toggleFavorite;
+  final Function isFavorite;
+
+  MealDetailScreen(this.toggleFavorite, this.isFavorite);
+
   Widget buildSectionTitle(String text, BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -39,51 +44,59 @@ class MealDetailScreen extends StatelessWidget {
     final selectMeal = DUMMY_MEALS.firstWhere((meal) => mealId == meal.id);
 
     return Scaffold(
-        appBar: AppBar(title: Text("${selectMeal.title}")),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height: 300,
-                width: double.infinity,
-                child: Image.network(
-                  selectMeal.imageUrl,
-                  fit: BoxFit.cover,
-                ),
+      appBar: AppBar(title: Text("${selectMeal.title}")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 300,
+              width: double.infinity,
+              child: Image.network(
+                selectMeal.imageUrl,
+                fit: BoxFit.cover,
               ),
-              buildSectionTitle('Ingrédients', context),
-              buildContainer(
-                  ListView.builder(
-                    itemCount: selectMeal.ingredients.length,
+            ),
+            buildSectionTitle('Ingrédients', context),
+            buildContainer(
+                ListView.builder(
+                  itemCount: selectMeal.ingredients.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      color: Theme.of(context).accentColor,
+                      child: Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: Text(selectMeal.ingredients[index])),
+                    );
+                  },
+                ),
+                context),
+            buildSectionTitle('Etapes', context),
+            buildContainer(
+                ListView.builder(
+                    itemCount: selectMeal.steps.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        color: Theme.of(context).accentColor,
-                        child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            child: Text(selectMeal.ingredients[index])),
-                      );
-                    },
-                  ),
-                  context),
-              buildSectionTitle('Etapes', context),
-              buildContainer(
-                  ListView.builder(
-                      itemCount: selectMeal.steps.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(children: [
-                          ListTile(
-                            leading: CircleAvatar(
-                              child: Text('#${index + 1}'),
-                            ),
-                            title: Text(selectMeal.steps[index]),
+                      return Column(children: [
+                        ListTile(
+                          leading: CircleAvatar(
+                            child: Text('#${index + 1}'),
                           ),
-                          Divider(),
-                        ]);
-                      }),
-                  context)
-            ],
-          ),
-        ));
+                          title: Text(selectMeal.steps[index]),
+                        ),
+                        Divider(),
+                      ]);
+                    }),
+                context)
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(isFavorite(mealId) ? Icons.star : Icons.star_border ),
+          // supprime un écran ou une pile ( quand on appelle un sur un autre )
+          onPressed: () {
+            toggleFavorite(mealId);
+            Navigator.of(context).pushReplacementNamed('/');
+          },
+    ));
   }
 }

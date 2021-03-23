@@ -1,44 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:meal_app/dummy_data.dart';
+import 'package:meal_app/models/meals.dart';
 import 'package:meal_app/widgets/meal_item.dart';
 
-class CategoriesMealsScreen extends StatelessWidget {
+class CategoriesMealsScreen extends StatefulWidget {
   static const routeName = '/category-meals';
 
-  // final String categoryId;
-  // final String categoryTitle;
-  // const CategoriesMealsScreen(this.categoryId, this.categoryTitle);
+  final List<Meal> availableMeals;
+
+  const CategoriesMealsScreen(this.availableMeals);
+
+  @override
+  _CategoriesMealsScreenState createState() => _CategoriesMealsScreenState();
+}
+
+class _CategoriesMealsScreenState extends State<CategoriesMealsScreen> {
+
+  String categoryTitle;
+  List<Meal> displayedMeal;
+
+  //Quand on ne peut pas utiliser initState qui souvent est trés tot
+  // (certains trucs sont pas encore crées)
+  // on utiise didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    final routeArgs =
+    ModalRoute.of(context).settings.arguments as Map<String, Object>;
+    categoryTitle = routeArgs['title'];
+    final categoryId = routeArgs['id'];
+
+    // available.property permet de récupérer les données passés par deux
+    // stateful
+    displayedMeal = widget.availableMeals.where((meal) {
+      return meal.categories.contains(categoryId);
+    }).toList();
+  }
+  
+  void _removeMeal(String mealId) {
+    setState(() {
+      displayedMeal.removeWhere((meal) => meal.id == mealId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    // routeArgs ppermet de récupérer les données fournit par
+    // routeArgs permet de récupérer les données fournit par
     // Navigator.of(context).pushNamed(CategoriesMealsScreen.routeName, arguments: {
     //       'id': id,
     //       'title': title
     //     });
-    final routeArgs =
-        ModalRoute.of(context).settings.arguments as Map<String, String>;
-    final categoryTitle = routeArgs['title'];
-    final categoryId = routeArgs['id'];
 
-    final categoryMeals = DUMMY_MEALS.where((meal) {
-      return meal.categories.contains(categoryId);
-    }).toList();
 
     return Scaffold(
         appBar: AppBar(title: Text(categoryTitle)),
         body: ListView.builder(
           itemBuilder: (context, index) {
             return MealItem(
-                id: categoryMeals[index].id,
-                title: categoryMeals[index].title,
-                imageUrl: categoryMeals[index].imageUrl,
-                duration: categoryMeals[index].duration,
-                complexity: categoryMeals[index].complexity,
-                affordability: categoryMeals[index].affordability);
+                id: displayedMeal[index].id,
+                title: displayedMeal[index].title,
+                imageUrl: displayedMeal[index].imageUrl,
+                duration: displayedMeal[index].duration,
+                complexity: displayedMeal[index].complexity,
+                affordability: displayedMeal[index].affordability,
+                //removeItem: _removeMeal,
+            );
           },
-          itemCount: categoryMeals.length,
-        ));
+          itemCount: displayedMeal.length,
+        )
+    );
   }
 }
